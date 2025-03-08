@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:35:23 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/07 20:44:13 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/07 21:20:50 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 typedef struct s_pipex
 {
 	bool	first_child;
+	int		fd_stdout;
 	int		fd_in;
 	int		fd_out;
 	int		fd[2];
