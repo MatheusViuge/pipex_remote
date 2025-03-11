@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/07 17:26:11 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/11 20:24:09 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/11 20:25:43 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ char	**path_finder(char **env)
 				perror("ft_split");
 				exit(1);
 			}
+			return (path);
 		}
 		i++;
 	}
