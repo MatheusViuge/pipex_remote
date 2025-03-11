@@ -6,50 +6,49 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:33:26 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/07 20:39:20 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/11 20:20:23 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static void	pipex( int ac, char **av, char **env)
+static void	pipex(t_pipex *data_center)
 {
 	int	pid;
-	int	fd[2];
-
-	pipe(fd);
+	
 	pid = fork();
 	if (pid == 0)
-		child_process(fd, ac, av, env);
+		child_process(data_center);
 	else if (pid == -1)
 	{
 		perror("fork");
 		exit (1);
 	}
 	waitpid(pid, NULL, 0);
-	parent_process(fd, ac, av, env, pid);
+	parent_process(data_center);
 }
 
-static int	here_doc(void)
+static void	ag_error(void)
 {
-	ft_putendl_fd("here_doc not implemented", 2);
-	return (1);
+	ft_putendl_fd("Usage: ./pipex file1 cmd1 cmd2 file2", 2);
 }
 
 int	main(int ac, char **av, char **env)
 {
+	t_pipex	*data_center;
+	data_center = malloc(sizeof(t_pipex));
+	data_center->path = path_finder(env);
 	if (ac != 5)
 	{
-		ft_putendl_fd("Error: Wrong number of arguments", 2);
-		ft_putendl_fd("Usage: ./pipex infile cmd1 cmd2 outfile",2);
+		ag_error();
 		return (1);
 	}
 	else if (ft_strncmp(av[1], "here_doc", 9) == 0)
 	{
-		if (here_doc())
-			return (1);
+		ft_putendl_fd("here_doc not implemented", 2);
+		return (1);
 	}
 	else
-		pipex(ac, av, env);
+		pipex(data_center);
 	return (0);
 }
