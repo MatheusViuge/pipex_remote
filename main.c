@@ -6,20 +6,27 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:33:26 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/13 17:50:56 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/13 18:03:21 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static void	pipex(t_pipex *data_center)
+static void	pipex(t_pipex *data)
 {
 	int	pid;
 
+	pipe(data->fd);
+	if (data->fd[0] < 0 || data->fd[1] < 0)
+	{
+		data_killer(data);
+		perror("pipe");
+		exit (1);
+	}
 	pid = fork();
 	if (pid == 0)
 	{
-		daycare(data_center);
+		daycare(data);
 	}
 	else if (pid == -1)
 	{
@@ -27,7 +34,7 @@ static void	pipex(t_pipex *data_center)
 		exit (1);
 	}
 	waitpid(pid, NULL, 0);
-	finish_process(data_center);
+	finish_process(data);
 }
 
 static void	free_splits(char **tab)
@@ -58,6 +65,10 @@ void	data_killer(t_pipex *data)
 		close(data->fd_in);
 	if (data->fd_out >= 0)
 		close(data->fd_out);
+	if (data->fd[0] >= 0)
+		close(data->fd[0]);
+	if (data->fd[1] >= 0)
+		close(data->fd[1]);
 	free(data);
 }
 
