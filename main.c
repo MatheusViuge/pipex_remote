@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:33:26 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/11 20:20:23 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/13 17:50:56 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,32 +18,35 @@ static void	pipex(t_pipex *data_center)
 
 	pid = fork();
 	if (pid == 0)
-		child_process(data_center);
+	{
+		daycare(data_center);
+	}
 	else if (pid == -1)
 	{
 		perror("fork");
 		exit (1);
 	}
 	waitpid(pid, NULL, 0);
-	parent_process(data_center);
+	finish_process(data_center);
 }
 
 static void	free_splits(char **tab)
 {
 	int	i;
 
-	i = -1;
+	i = 0;
 	if (!tab)
 		return ;
-	while (tab[i++])
+	while (tab[i])
 	{
 		if (tab[i])
 			free(tab[i]);
+		i++;
 	}
 	free(tab);
 }
 
-static void	kill_brain(t_pipex *data)
+void	data_killer(t_pipex *data)
 {
 	if (data->path)
 		free_splits(data->path);
@@ -55,6 +58,7 @@ static void	kill_brain(t_pipex *data)
 		close(data->fd_in);
 	if (data->fd_out >= 0)
 		close(data->fd_out);
+	free(data);
 }
 
 static t_pipex	*brain_init(char **av, char **env)
@@ -71,7 +75,7 @@ static t_pipex	*brain_init(char **av, char **env)
 	splits = (!data->cmd1 || !data->cmd2 || !data->path);
 	if (data->fd_in < 0 || data->fd_out < 0 || splits)
 	{
-		kill_brain(data);
+		data_killer(data);
 		return (NULL);
 	}
 	return (data);
@@ -82,6 +86,11 @@ int	main(int ac, char **av, char **env)
 	t_pipex	*brain;
 
 	brain = brain_init(av, env);
+	if (!brain)
+	{
+		perror("Structure initialization");
+		return (1);
+	}
 	if (ac != 5)
 	{
 		ft_putendl_fd("Usage: ./pipex file1 cmd1 cmd2 file2", 2);
