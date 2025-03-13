@@ -15,7 +15,7 @@
 static void	pipex(t_pipex *data_center)
 {
 	int	pid;
-	
+
 	pid = fork();
 	if (pid == 0)
 		child_process(data_center);
@@ -28,19 +28,63 @@ static void	pipex(t_pipex *data_center)
 	parent_process(data_center);
 }
 
-static void	ag_error(void)
+static void	free_splits(char **tab)
 {
-	ft_putendl_fd("Usage: ./pipex file1 cmd1 cmd2 file2", 2);
+	int	i;
+
+	i = -1;
+	if (!tab)
+		return ;
+	while (tab[i++])
+	{
+		if (tab[i])
+			free(tab[i]);
+	}
+	free(tab);
+}
+
+static void	kill_brain(t_pipex *data)
+{
+	if (data->path)
+		free_splits(data->path);
+	if (data->cmd1)
+		free_splits(data->cmd1);
+	if (data->cmd2)
+		free_splits(data->cmd2);
+	if (data->fd_in >= 0)
+		close(data->fd_in);
+	if (data->fd_out >= 0)
+		close(data->fd_out);
+}
+
+static t_pipex	*brain_init(char **av, char **env)
+{
+	t_pipex	*data;
+	int		splits;
+
+	data = (t_pipex *)ft_calloc(1, sizeof(t_pipex));
+	data->fd_in = open(av[1], O_RDONLY);
+	data->cmd1 = ft_split(av[2], ':');
+	data->cmd2 = ft_split(av[3], ':');
+	data->fd_out = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	data->path = path_finder(env);
+	splits = (!data->cmd1 || !data->cmd2 || !data->path);
+	if (data->fd_in < 0 || data->fd_out < 0 || splits)
+	{
+		kill_brain(data);
+		return (NULL);
+	}
+	return (data);
 }
 
 int	main(int ac, char **av, char **env)
 {
-	t_pipex	*data_center;
-	data_center = malloc(sizeof(t_pipex));
-	data_center->path = path_finder(env);
+	t_pipex	*brain;
+
+	brain = brain_init(av, env);
 	if (ac != 5)
 	{
-		ag_error();
+		ft_putendl_fd("Usage: ./pipex file1 cmd1 cmd2 file2", 2);
 		return (1);
 	}
 	else if (ft_strncmp(av[1], "here_doc", 9) == 0)
@@ -49,6 +93,6 @@ int	main(int ac, char **av, char **env)
 		return (1);
 	}
 	else
-		pipex(data_center);
+		pipex(brain);
 	return (0);
 }

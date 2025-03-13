@@ -41,12 +41,6 @@ void	child_process(t_pipex *data_struct)
 	printf("pid from child %d\n", getpid());
 	printf("hello world from child\n");
 	exit(0);
-	// close(fd[0]);
-	// dup2(fd[1], 1);
-	// close(fd[1]);
-	// execve(av[2], &av[2], env);
-	// perror("execve");
-	// exit(1);
 }
 
 void	parent_process(t_pipex *data_struct)
@@ -58,10 +52,4 @@ void	parent_process(t_pipex *data_struct)
 	for (int i = 0; data_struct->path[i]; i++)
 		printf("%s\n", data_struct->path[i]);
 	exit(0);
-	// close(fd[1]);
-	// dup2(fd[0], 0);
-	// close(fd[0]);
-	// execve(av[3], &av[3], env);
-	// perror("execve");
-	// exit(1);
 }
