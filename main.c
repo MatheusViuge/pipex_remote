@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:33:26 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/14 16:51:11 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/14 16:54:53 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,14 +81,9 @@ static t_pipex	*brain_init(char **av, char **env)
 	data->cmd2 = ft_split(av[3], ' ');
 	data->fd_out = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	data->path = path_finder(env);
-	if (pipe(data->fd) == -1)
-	{
-		data_killer(data);
-		return (NULL);
-	}
+	pipes = pipe(data->fd);
 	splits = (!data->cmd1 || !data->cmd2 || !data->path);
-	pipes= (data->fd[0] < 0 || data->fd[1] < 0);
-	if (data->fd_in < 0 || data->fd_out < 0 || splits || pipes)
+	if (data->fd_in < 0 || data->fd_out < 0 || splits || pipes == -1)
 	{
 		data_killer(data);
 		return (NULL);
