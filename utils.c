@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/07 17:26:11 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/14 15:45:57 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/14 16:01:31 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	path_join(char **path, char *str)
 		tmp = ft_strjoin(path[i], str);
 		if (!tmp)
 		{
-			error_handler("ft_strjoin");
+			error_handler("ft_strjoin", NULL);
 			return ;
 		}
 		free(path[i]);
@@ -44,13 +44,13 @@ char	**path_finder(char **env)
 		{
 			path = ft_split(env[i] + 5, ':');
 			if (!path)
-				error_handler("ft_split");
+				error_handler("ft_split", NULL);
 			path_join(path, "/");
 			return (path);
 		}
 		i++;
 	}
-	perror("PATH not found");
+	error_handler("PATH not found", NULL);
 	return (NULL);
 }
 
@@ -63,8 +63,11 @@ void	daycare(t_pipex *data_struct)
 	exit(0);
 }
 
-void	error_handler(char *message)
+void	error_handler(char *message, t_pipex *data)
+
 {
+	if (data)
+		data_killer(data);
 	perror(message);
 	exit(1);
 };

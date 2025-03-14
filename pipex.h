@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:35:23 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/14 15:46:08 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/14 16:01:43 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ typedef struct s_pipex
 
 void	path_join(char **path, char *str);
 void	free_splits(char **tab);
-void	error_handler(char *message);
+void	error_handler(char *message, t_pipex *data);
 void	data_killer(t_pipex *data);
 void	daycare(t_pipex *data_struct);
 void	finish_process(t_pipex *data_struct);

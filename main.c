@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:33:26 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/14 15:19:02 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/14 16:02:52 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,9 @@ static void	pipex(t_pipex *data)
 
 	pid = fork();
 	if (pid == 0)
-	{
 		daycare(data);
-	}
 	else if (pid == -1)
-	{
-		data_killer(data);
-		error_handler("fork");
-	}
+		error_handler("fork", data);
 	waitpid(pid, NULL, 0);
 	finish_process(data);
 }
@@ -72,6 +67,7 @@ static t_pipex	*brain_init(char **av, char **env)
 	int		pipes;
 
 	data = (t_pipex *)ft_calloc(1, sizeof(t_pipex));
+	data->first_child = true;
 	data->fd_in = open(av[1], O_RDONLY);
 	data->cmd1 = ft_split(av[2], ' ');
 	data->cmd2 = ft_split(av[3], ' ');
@@ -95,7 +91,7 @@ int	main(int ac, char **av, char **env)
 	brain = brain_init(av, env);
 	if (!brain)
 	{
-		error_handler("brain_init");
+		error_handler("brain_init", brain);
 		return (1);
 	}
 	if (ac != 5)
