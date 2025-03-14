@@ -6,13 +6,13 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/07 17:26:11 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/13 17:47:55 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/14 15:45:57 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static void	path_join(char **path)
+void	path_join(char **path, char *str)
 {
 	int		i;
 	char	*tmp;
@@ -20,11 +20,11 @@ static void	path_join(char **path)
 	i = 0;
 	while (path[i])
 	{
-		tmp = ft_strjoin(path[i], "/");
+		tmp = ft_strjoin(path[i], str);
 		if (!tmp)
 		{
-			perror("ft_strjoin");
-			exit(1);
+			error_handler("ft_strjoin");
+			return ;
 		}
 		free(path[i]);
 		path[i] = tmp;
@@ -44,17 +44,14 @@ char	**path_finder(char **env)
 		{
 			path = ft_split(env[i] + 5, ':');
 			if (!path)
-			{
-				perror("ft_split");
-				exit(1);
-			}
-			path_join(path);
+				error_handler("ft_split");
+			path_join(path, "/");
 			return (path);
 		}
 		i++;
 	}
 	perror("PATH not found");
-	exit(1);
+	return (NULL);
 }
 
 void	daycare(t_pipex *data_struct)
@@ -65,6 +62,12 @@ void	daycare(t_pipex *data_struct)
 	data_killer(data_struct);
 	exit(0);
 }
+
+void	error_handler(char *message)
+{
+	perror(message);
+	exit(1);
+};
 
 void	finish_process(t_pipex *data_struct)
 {

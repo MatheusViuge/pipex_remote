@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:33:26 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/13 18:03:21 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/14 15:19:02 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,6 @@ static void	pipex(t_pipex *data)
 {
 	int	pid;
 
-	pipe(data->fd);
-	if (data->fd[0] < 0 || data->fd[1] < 0)
-	{
-		data_killer(data);
-		perror("pipe");
-		exit (1);
-	}
 	pid = fork();
 	if (pid == 0)
 	{
@@ -30,14 +23,14 @@ static void	pipex(t_pipex *data)
 	}
 	else if (pid == -1)
 	{
-		perror("fork");
-		exit (1);
+		data_killer(data);
+		error_handler("fork");
 	}
 	waitpid(pid, NULL, 0);
 	finish_process(data);
 }
 
-static void	free_splits(char **tab)
+void	free_splits(char **tab)
 {
 	int	i;
 
@@ -76,15 +69,18 @@ static t_pipex	*brain_init(char **av, char **env)
 {
 	t_pipex	*data;
 	int		splits;
+	int		pipes;
 
 	data = (t_pipex *)ft_calloc(1, sizeof(t_pipex));
 	data->fd_in = open(av[1], O_RDONLY);
-	data->cmd1 = ft_split(av[2], ':');
-	data->cmd2 = ft_split(av[3], ':');
+	data->cmd1 = ft_split(av[2], ' ');
+	data->cmd2 = ft_split(av[3], ' ');
 	data->fd_out = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	data->path = path_finder(env);
+	pipe(data->fd);
 	splits = (!data->cmd1 || !data->cmd2 || !data->path);
-	if (data->fd_in < 0 || data->fd_out < 0 || splits)
+	pipes= (data->fd[0] < 0 || data->fd[1] < 0);
+	if (data->fd_in < 0 || data->fd_out < 0 || splits || pipes)
 	{
 		data_killer(data);
 		return (NULL);
@@ -99,17 +95,12 @@ int	main(int ac, char **av, char **env)
 	brain = brain_init(av, env);
 	if (!brain)
 	{
-		perror("Structure initialization");
+		error_handler("brain_init");
 		return (1);
 	}
 	if (ac != 5)
 	{
 		ft_putendl_fd("Usage: ./pipex file1 cmd1 cmd2 file2", 2);
-		return (1);
-	}
-	else if (ft_strncmp(av[1], "here_doc", 9) == 0)
-	{
-		ft_putendl_fd("here_doc not implemented", 2);
 		return (1);
 	}
 	else
