@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:33:26 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/14 16:02:52 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/14 16:51:11 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 static void	pipex(t_pipex *data)
 {
 	int	pid;
+	int	pid2;
 
 	pid = fork();
 	if (pid == 0)
@@ -22,6 +23,13 @@ static void	pipex(t_pipex *data)
 	else if (pid == -1)
 		error_handler("fork", data);
 	waitpid(pid, NULL, 0);
+	data->first_child = false;
+	pid2 = fork();
+	if (pid2 == 0)
+		daycare(data);
+	else if (pid2 == -1)
+		error_handler("fork", data);
+	waitpid(pid2, NULL, 0);
 	finish_process(data);
 }
 
@@ -73,7 +81,11 @@ static t_pipex	*brain_init(char **av, char **env)
 	data->cmd2 = ft_split(av[3], ' ');
 	data->fd_out = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	data->path = path_finder(env);
-	pipe(data->fd);
+	if (pipe(data->fd) == -1)
+	{
+		data_killer(data);
+		return (NULL);
+	}
 	splits = (!data->cmd1 || !data->cmd2 || !data->path);
 	pipes= (data->fd[0] < 0 || data->fd[1] < 0);
 	if (data->fd_in < 0 || data->fd_out < 0 || splits || pipes)
@@ -91,7 +103,7 @@ int	main(int ac, char **av, char **env)
 	brain = brain_init(av, env);
 	if (!brain)
 	{
-		error_handler("brain_init", brain);
+		error_handler("Struct creator", brain);
 		return (1);
 	}
 	if (ac != 5)
