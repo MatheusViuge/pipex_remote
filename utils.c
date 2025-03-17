@@ -6,60 +6,59 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/07 17:26:11 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/14 16:01:31 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/17 20:22:56 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	path_join(char **path, char *str)
+static void playground(t_pipex *data)
 {
-	int		i;
-	char	*tmp;
+	int	i;
+	char	**cmd;
 
 	i = 0;
-	while (path[i])
+	if (data->first_child)
 	{
-		tmp = ft_strjoin(path[i], str);
-		if (!tmp)
-		{
-			error_handler("ft_strjoin", NULL);
-			return ;
-		}
-		free(path[i]);
-		path[i] = tmp;
-		i++;
+		path_join(data->path, data->cmd1[0]);
+		cmd = data->cmd1;
 	}
+	else
+	{
+		path_join(data->path, data->cmd2[0]);
+		cmd = data->cmd2;
+	}
+	while (access(data->path[i], F_OK) == -1)
+	{
+		i++;
+		if (!*data->path[i])
+			error_handler("command not found", data);
+	}
+	if (execve(data->path[i], cmd, NULL) == -1)
+		error_handler("execve", data);
+	data_killer(data);
+	exit(0);
 }
 
-char	**path_finder(char **env)
+void	daycare(t_pipex *data)
 {
-	char	**path;
-	int		i;
-
-	i = 0;
-	while (env[i])
+	if (data->first_child)
 	{
-		if (ft_strncmp(env[i], "PATH=", 5) == 0)
-		{
-			path = ft_split(env[i] + 5, ':');
-			if (!path)
-				error_handler("ft_split", NULL);
-			path_join(path, "/");
-			return (path);
-		}
-		i++;
+		close(data->fd[0]);
+		dup2(data->fd_in, STDIN_FILENO);
+		close(data->fd_in);
+		dup2(data->fd[1], STDOUT_FILENO);
+		close(data->fd[1]);
+	} else
+	{
+		close(data->fd[1]);
+		dup2(data->fd[0], STDIN_FILENO);
+		close(data->fd[0]);
+		dup2(data->fd_out, STDOUT_FILENO);
+		close(data->fd_out);
 	}
-	error_handler("PATH not found", NULL);
-	return (NULL);
-}
-
-void	daycare(t_pipex *data_struct)
-{
-	(void)data_struct;
-	printf("pid from child %d\n", getpid());
-	printf("hello world from child\n");
-	data_killer(data_struct);
+	playground(data);
+	data_killer(data);
 	exit(0);
 }
 
@@ -72,14 +71,9 @@ void	error_handler(char *message, t_pipex *data)
 	exit(1);
 };
 
-void	finish_process(t_pipex *data_struct)
+void	finish_process(t_pipex *data)
 {
-	(void)data_struct;
-	printf("pid from parent %d\n", getpid());
-	printf("hello world from parent\n");
-	printf("Now printing path\n");
-	for (int i = 0; data_struct->path[i]; i++)
-		printf("%s\n", data_struct->path[i]);
-	data_killer(data_struct);
+	printf("Process finished\n");
+	data_killer(data);
 	exit(0);
 }

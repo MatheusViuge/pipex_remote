@@ -4,7 +4,7 @@ CFLAGS = -g -Wall -Wextra -Werror
 LIBFT_DIR = ./libft
 LIBFT = $(LIBFT_DIR)/libft.a
 NAME = pipex
-SRCS = main.c utils.c #pipex.c pipex_utils.c 
+SRCS = main.c utils.c pipex_utils.c 
 OBJS = $(SRCS:.c=.o)
 
 # Regras
