@@ -6,7 +6,7 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:33:26 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/17 19:59:59 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/19 16:51:13 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,15 @@ static void	pipex(t_pipex *data)
 		daycare(data);
 	else if (pid == -1)
 		error_handler("fork", data);
-	waitpid(pid, NULL, 0);
 	data->first_child = false;
 	child = fork();
 	if (child == 0)
 		daycare(data);
 	else if (child == -1)
 		error_handler("fork", data);
+	close(data->fd[0]);
+	close(data->fd[1]);
+	waitpid(pid, NULL, 0);
 	waitpid(child, NULL, 0);
 	finish_process(data);
 }

@@ -6,15 +6,15 @@
 /*   By: mviana-v <mviana-v@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/07 17:26:11 by mviana-v          #+#    #+#             */
-/*   Updated: 2025/03/17 20:22:56 by mviana-v         ###   ########.fr       */
+/*   Updated: 2025/03/19 18:22:12 by mviana-v         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static void playground(t_pipex *data)
+static void	playground(t_pipex *data)
 {
-	int	i;
+	int		i;
 	char	**cmd;
 
 	i = 0;
@@ -45,16 +45,23 @@ void	daycare(t_pipex *data)
 	if (data->first_child)
 	{
 		close(data->fd[0]);
-		dup2(data->fd_in, STDIN_FILENO);
+		if (dup2(data->fd_in, STDIN_FILENO) == -1)
+			error_handler("Error dup2", data);
 		close(data->fd_in);
-		dup2(data->fd[1], STDOUT_FILENO);
+		if (dup2(data->fd[1], STDOUT_FILENO) == -1)
+			error_handler("Error dup2", data);
 		close(data->fd[1]);
-	} else
+		close(data->fd_out);
+	}
+	else
 	{
+		close(data->fd_in);
 		close(data->fd[1]);
-		dup2(data->fd[0], STDIN_FILENO);
+		if (dup2(data->fd[0], STDIN_FILENO) == -1)
+			error_handler("Error dup2", data);
 		close(data->fd[0]);
-		dup2(data->fd_out, STDOUT_FILENO);
+		if (dup2(data->fd_out, STDOUT_FILENO) == -1)
+			error_handler("Error dup2", data);
 		close(data->fd_out);
 	}
 	playground(data);
@@ -63,13 +70,12 @@ void	daycare(t_pipex *data)
 }
 
 void	error_handler(char *message, t_pipex *data)
-
 {
 	if (data)
 		data_killer(data);
 	perror(message);
 	exit(1);
-};
+}
 
 void	finish_process(t_pipex *data)
 {
